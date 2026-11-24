@@ -11,13 +11,11 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
-      - name: Install and Sync
+          java-version: '21'
+      - name: Install and Build
         run: |
           npm install
           npx cap sync android
-      - name: Build Debug APK
-        run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
