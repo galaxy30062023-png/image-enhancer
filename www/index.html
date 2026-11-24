@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Image Enhancer Pro</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#eef2ff,#fdf2f8,#ecfeff);
+    color: #222;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 30px 15px;
+    background: linear-gradient(120deg,#6c3bff,#ec4899,#ff8c42);
+    color: white;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 15px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 15px;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 22px;
+}
+
+.panel {
+    background: white;
+    padding: 22px;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px #00000012;
+}
+
+.upload-box {
+    display: block;
+    border: 2px dashed #9b70ff;
+    border-radius: 15px;
+    padding: 35px 15px;
+    text-align: center;
+    cursor: pointer;
+    background: #faf7ff;
+    transition: .3s;
+}
+
+.upload-box:hover,
+.upload-box.dragover {
+    background: #f0eaff;
+    border-color: #ec4899;
+}
+
+.upload-box .upload-icon {
+    font-size: 45px;
+    margin-bottom: 10px;
+}
+
+.upload-box h3 {
+    color: #6938ef;
+    margin-bottom: 8px;
+}
+
+.upload-box p {
+    color: #777;
+    font-size: 13px;
+}
+
+input[type=file] {
+    display: none;
+}
+
+.preview {
+    margin-top: 20px;
+    background: #171717;
+    min-height: 300px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    padding: 15px;
+}
+
+canvas {
+    display: none;
+    max-width: 100%;
+    max-height: 550px;
+    object-fit: contain;
+}
+
+#emptyMessage {
+    color: #aaa;
+    text-align: center;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+button, select {
+    border: none;
+    padding: 11px 15px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.btn {
+    background: linear-gradient(120deg,#7045ff,#ec4899);
+    color: white;
+}
+
+.btn:hover {
+    opacity: .85;
+}
+
+.secondary {
+    background: #eee9ff;
+    color: #6335dc;
+}
+
+.danger {
+    background: #ffe8e8;
+    color: #e53935;
+}
+
+.control-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #6938ef;
+}
+
+.control {
+    margin-bottom: 20px;
+}
+
+.control label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 9px;
+}
+
+input[type=range] {
+    width: 100%;
+    accent-color: #8b45f5;
+    cursor: pointer;
+}
+
+.presets {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 9px;
+    margin-bottom: 20px;
+}
+
+.preset {
+    background: #f1edff;
+    color: #6938ef;
+    padding: 12px 5px;
+}
+
+.preset.active {
+    background: #713df2;
+    color: white;
+}
+
+.export-area {
+    margin-top: 22px;
+    border-top: 1px solid #eee;
+    padding-top: 18px;
+}
+
+.export-area select {
+    width: 100%;
+    background: #f5f3ff;
+    margin-bottom: 12px;
+}
+
+.download {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(120deg,#16c784,#0da8d5);
+    color: white;
+    font-size: 15px;
+}
+
+.footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+    font-size: 13px;
+}
+
+@media(max-width:850px) {
+    .main {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width:500px) {
+    header h1 {
+        font-size: 25px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+
+    .preview {
+        min-height: 230px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>✨ Image Enhancer Pro</h1>
+    <p>Enhance your photos with beautiful professional effects</p>
+</header>
+
+<div class="container">
+
+<div class="main">
+
+<!-- IMAGE PREVIEW SECTION -->
+<div class="panel">
+
+    <label class="upload-box" id="uploadBox">
+        <div class="upload-icon">📸</div>
+        <h3>Upload Your Image</h3>
+        <p>Tap here to select from Gallery</p>
+        <p>JPG, PNG, WEBP supported</p>
+        <input type="file" id="fileInput" accept="image/*">
+    </label>
+
+    <div class="preview" id="preview">
+        <div id="emptyMessage">
+            <div style="font-size:50px">🖼️</div>
+            Your enhanced image will appear here
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="toolbar">
+        <button class="secondary" id="zoomIn">🔍 Zoom +</button>
+        <button class="secondary" id="zoomOut">Zoom -</button>
+        <button class="secondary" id="rotate">🔄 Rotate</button>
+        <button class="secondary" id="compare">👁 Before / After</button>
+        <button class="danger" id="reset">↩ Reset</button>
+    </div>
+
+    <div class="export-area">
+        <select id="format">
+            <option value="image/png">PNG Format</option>
+            <option value="image/jpeg">JPG Format</option>
+            <option value="image/webp">WEBP Format</option>
+        </select>
+
+        <button class="download" id="download">
+            ⬇ Save / Share Enhanced Image
+        </button>
+    </div>
+
+</div>
+
+<!-- CONTROLS SECTION -->
+<div class="panel">
+
+    <h2 class="control-title">🎨 Editing Controls</h2>
+
+    <h4 style="margin-bottom:12px">Quick Presets</h4>
+
+    <div class="presets">
+        <button class="preset" data-preset="original">Original</button>
+        <button class="preset" data-preset="bright">Bright</button>
+        <button class="preset" data-preset="vivid">Vivid</button>
+        <button class="preset" data-preset="warm">Warm</button>
+        <button class="preset" data-preset="cool">Cool</button>
+        <button class="preset" data-preset="vintage">Vintage</button>
+    </div>
+
+    <div id="controls">
+
+        <div class="control">
+            <label>☀ Brightness <span id="brightnessVal">100%</span></label>
+            <input type="range" id="brightness" min="0" max="200" value="100">
+        </div>
+
+        <div class="control">
+            <label>◐ Contrast <span id="contrastVal">100%</span></label>
+            <input type="range" id="contrast" min="0" max="200" value="100">
+        </div>
+
+        <div class="control">
+            <label>🌈 Saturation <span id="saturationVal">100%</span></label>
+            <input type="range" id="saturation" min="0" max="200" value="100">
+        </div>
+
+        <div class="control">
+            <label>✨ Sharpness <span id="sharpnessVal">0</span></label>
+            <input type="range" id="sharpness" min="0" max="100" value="0">
+        </div>
+
+        <div class="control">
+            <label>💧 Blur <span id="blurVal">0px</span></label>
+            <input type="range" id="blur" min="0" max="10" value="0">
+        </div>
+
+        <div class="control">
+            <label>🌡 Temperature <span id="temperatureVal">0</span></label>
+            <input type="range" id="temperature" min="-100" max="100" value="0">
+        </div>
+
+        <div class="control">
+            <label>⚫ Grayscale <span id="grayscaleVal">0%</span></label>
+            <input type="range" id="grayscale" min="0" max="100" value="0">
+        </div>
+
+        <div class="control">
+            <label>🟤 Sepia <span id="sepiaVal">0%</span></label>
+            <input type="range" id="sepia" min="0" max="100" value="0">
+        </div>
+
+    </div>
+
+    <button class="btn" style="width:100%" id="autoEnhance">
+        ✨ Auto Enhance
+    </button>
+
+</div>
+
+</div>
+</div>
+
+<div class="footer">
+    Image Enhancer Pro © 2026 | Mobile App
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+const fileInput = document.getElementById("fileInput");
+const uploadBox = document.getElementById("uploadBox");
+const emptyMessage = document.getElementById("emptyMessage");
+
+let originalImage = null;
+let zoom = 1;
+let rotation = 0;
+let showingOriginal = false;
+
+const defaults = {
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    sharpness: 0,
+    blur: 0,
+    temperature: 0,
+    grayscale: 0,
+    sepia: 0
+};
+
+let settings = {...defaults};
+const sliders = Object.keys(defaults);
+
+function loadImage(file) {
+    if (!file || !file.type.startsWith("image/")) {
+        alert("Please select a valid image file.");
+        return;
+    }
+
+    if (file.size > 30 * 1024 * 1024) {
+        alert("Please select an image smaller than 30MB.");
+        return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+        originalImage = img;
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+
+        settings = {...defaults};
+        zoom = 1;
+        rotation = 0;
+
+        updateSliders();
+        emptyMessage.style.display = "none";
+        canvas.style.display = "block";
+
+        render();
+        URL.revokeObjectURL(url);
+    };
+
+    img.onerror = () => {
+        URL.revokeObjectURL(url);
+        alert("Unable to load this image.");
+    };
+
+    img.src = url;
+}
+
+fileInput.addEventListener("change", e => {
+    if (e.target.files && e.target.files[0]) {
+        loadImage(e.target.files[0]);
+    }
+});
+
+uploadBox.addEventListener("dragover", e => {
+    e.preventDefault();
+    uploadBox.classList.add("dragover");
+});
+
+uploadBox.addEventListener("dragleave", () => {
+    uploadBox.classList.remove("dragover");
+});
+
+uploadBox.addEventListener("drop", e => {
+    e.preventDefault();
+    uploadBox.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        loadImage(e.dataTransfer.files[0]);
+    }
+});
+
+function render() {
+    if (!originalImage) return;
+
+    const w = originalImage.naturalWidth;
+    const h = originalImage.naturalHeight;
+
+    const rotated = Math.abs(rotation % 180) === 90;
+
+    canvas.width = rotated ? h : w;
+    canvas.height = rotated ? w : h;
+
+    ctx.save();
+
+X

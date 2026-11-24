@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Image Enhancer</string>
+    <string name="title_activity_main">Image Enhancer</string>
+    <string name="package_name">com.myname.imageenhancer</string>
+    <string name="custom_url_scheme">com.myname.imageenhancer</string>
+</resources>
